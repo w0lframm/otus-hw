@@ -3,6 +3,7 @@ package hw04lrucache
 import (
 	"testing"
 
+	//nolint:depguard
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,6 +14,42 @@ func TestList(t *testing.T) {
 		require.Equal(t, 0, l.Len())
 		require.Nil(t, l.Front())
 		require.Nil(t, l.Back())
+	})
+
+	t.Run("single-element list", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("only") // ["only"]
+		require.Equal(t, 1, l.Len())
+		require.Equal(t, l.Front(), l.Back())
+		require.Equal(t, l.Front().Prev, l.Back().Next)
+
+		elem := l.Back()
+		l.MoveToFront(elem) // ["only"]
+		require.Equal(t, 1, l.Len())
+		require.Equal(t, l.Front(), l.Back())
+
+		l.Remove(elem) // [ ]
+		require.Equal(t, 0, l.Len())
+		require.Equal(t, l.Front(), l.Back())
+	})
+
+	t.Run("two-element list", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("first") // ["first"]
+		l.PushBack("last")   // ["first", "last"]
+
+		require.Equal(t, 2, l.Len())
+		require.NotEqual(t, l.Front(), l.Back())
+
+		elem := l.Back()
+		l.MoveToFront(elem) // ["last", "first"]
+		require.Equal(t, elem.Value, l.Front().Value)
+		require.Equal(t, l.Front().Prev, l.Back().Next)
+
+		l.Remove(elem) // ["first"]
+		require.Equal(t, 1, l.Len())
+		require.Equal(t, l.Back(), l.Front())
+		require.NotEqual(t, elem, l.Back())
 	})
 
 	t.Run("complex", func(t *testing.T) {
